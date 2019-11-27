@@ -1,0 +1,7 @@
+numpy
+scipy
+matplotlib
+jupyter
+pandas
+datetime
+tiingo
