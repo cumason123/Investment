@@ -10,8 +10,9 @@ from pandas.plotting import register_matplotlib_converters
 from dateutil.relativedelta import relativedelta
 import pantulipy as ti
 import io
-import math
-
+from mpl_finance import candlestick_ohlc
+import matplotlib.dates as mpl_dates
+import copy
 class Indicators():
     """
     Signal library to provide graphical analysis of various market symbols
@@ -57,61 +58,79 @@ class Indicators():
         self.lognorm = lambda x: scipy.stats.lognorm(x, loc=self.data['avg'].mean(), scale=self.data['avg'].std())
         
         # Indicators
-        self.cci = ti.cci(self.data, 20)
-        self.rsi = ti.rsi(self.data, 14)
-        self.short_stick = ti.ema(self.data, 12)
-        self.long_stick = ti.ema(self.data, 26)
-        self.macd, self.macd_signal, self.macd_histogram = ti.macd(self.data, 12, 26, 9)
+        macd, macd_signal, macd_histogram = ti.macd(self.data, 12, 26, 9)
+        self.indicators = {
+            'cci': ti.cci(self.data, 20),
+            'rsi': ti.rsi(self.data, 14),
+            'shortema': ti.ema(self.data, 12),
+            'longema': ti.ema(self.data, 26),
+            'macd': macd,
+            'macd_signal': macd_signal,
+            'macd_histogram': macd_histogram,
+            'show': self.data
+        }
 
 def plot_indicator(indicator, start_timeframe):
     plt.rcParams['figure.figsize'] = [20, 20]
-    show = indicator.data.loc[start_timeframe:datetime.datetime.today()]
+    show = copy.deepcopy(indicator.indicators)
 
-    cci = indicator.cci.loc[start_timeframe:datetime.datetime.today()]
-    rsi = indicator.rsi.loc[start_timeframe:datetime.datetime.today()]
-    short_stick = indicator.short_stick.loc[start_timeframe:datetime.datetime.today()]
-    long_stick = indicator.long_stick.loc[start_timeframe:datetime.datetime.today()]
-    macd = indicator.macd.loc[start_timeframe:datetime.datetime.today()]
-    macd_signal = indicator.macd_signal.loc[start_timeframe:datetime.datetime.today()]
-    macd_histogram = indicator.macd_histogram.loc[start_timeframe:datetime.datetime.today()]
+    for key in show:
+        show[key] = show[key].loc[start_timeframe:datetime.datetime.today()]
 
-    # MACD
-    plt.subplot(511)
-    plt.title("{0}: {1} vs {2} EMA's".format(indicator.symbol, 12, 26))
-    plt.plot(show.loc[long_stick.index]['close'], color='green')
-    plt.plot(short_stick.loc[long_stick.index], label='12 EMA', color='blue')
-    plt.plot(long_stick, label='26 EMA', color='orange')
-    plt.legend()
+    # Graph 1 -- MACD
+    fig, axes = plt.subplots(5, 1)
+    ax1, ax2, ax3, ax4, ax5 = axes
+    for i, ax in enumerate(axes):
+        for tick in ax.get_xticklabels():
+            tick.set_rotation(45)
 
-    plt.subplot(512)
-    plt.title('MACD vs signal line')
-    plt.plot(macd, label="macd", color='blue')
-    plt.plot(macd_signal, label="signal line", color='orange')
-    plt.legend()
+    ax1.set_title("{0}: {1} vs {2} EMA's".format(indicator.symbol, 12, 26))
+    ohlc = show['show'].loc[show['longema'].index]
 
-    plt.subplot(513)
-    plt.title('MACD histogram')
-    plt.hist(macd_histogram, bins=200)
+    ohlc['Date'] = pd.to_datetime(ohlc.index)
+    ohlc['Date'] = ohlc['Date'].apply(mpl_dates.date2num)
 
-    # CCI
-    plt.subplot(514)
-    plt.title('Commodity Channel Index (CCI)')
-    plt.plot(cci, label='cci')
+    ohlc = ohlc[['Date', 'open', 'high', 'low', 'close']]
+    candlestick_ohlc(ax1, ohlc.values, colorup='green', colordown='red')
 
-    oversold_index = pd.DataFrame({'oversold': [-100]*len(cci), 'index':cci.index}).set_index('index')
-    overbought_index = pd.DataFrame({'overbought': [100]*len(cci), 'index':cci.index}).set_index('index')
-    plt.plot(overbought_index, linestyle=':', color='blue')
-    plt.plot(oversold_index, linestyle=':', color='red')
-    plt.legend()
+    ax1.plot(show['shortema'].loc[show['longema'].index], label='12 EMA', color='blue')
+    ax1.plot(show['longema'], label='26 EMA', color='orange')
+    ax1.legend()
 
-    # # RSI
-    oversold_index = pd.DataFrame({'oversold': [30]*len(cci), 'index':cci.index}).set_index('index')
-    overbought_index = pd.DataFrame({'overbought': [70]*len(cci), 'index':cci.index}).set_index('index')
-    plt.subplot(515)
-    plt.title('Relative Strength Index (RSI)')
-    plt.plot(rsi, label='rsi')
-    plt.plot(overbought_index, linestyle=':', color='blue')
-    plt.plot(oversold_index, linestyle=':', color='red')
-    plt.legend()
+    # Graph 2 -- MACD
+    ax2.set_title('MACD vs signal line')
+    ax2.plot(show['macd'], label="macd", color='blue', lw=2)
+    ax2.plot(show['macd_signal'], label="signal line", color='orange', lw=2)
 
+    x = show['macd'].index
+    y1 = show['macd'].values
+    y2 = show['macd_signal'].values
+
+    ax2.fill_between(x, y1, y2, where=y2 >= y1, facecolor='red', interpolate=True)
+    ax2.fill_between(x, y1, y2, where=y2 < y1, facecolor='green', interpolate=True)
+    ax2.legend()
+
+    # Graph 3 -- MACD
+    ax3.set_title('MACD - signal line')
+    ax3.plot(show['macd_histogram'], color='blue')
+    y = show['macd_histogram'].values
+    x = show['macd_histogram'].index
+    ax3.fill_between(x, 0, y, where=y >= 0, facecolor='green', interpolate=True)
+    ax3.fill_between(x, 0, y, where=y < 0, facecolor='red', interpolate=True)
+    ax3.axhline(y=0, linestyle=':', color='black')
+    
+    # Graph 4 -- CCI
+    ax4.set_title('Commodity Channel Index (CCI)')
+    ax4.plot(show['cci'], label='cci')
+    ax4.axhline(y=-100, linestyle=':', color='blue')
+    ax4.axhline(y=100, linestyle=':', color='red')
+    ax4.legend()
+
+    # Graph 5 -- RSI
+    ax5.set_title('Relative Strength Index (RSI)')
+    ax5.plot(show['rsi'], label='rsi')
+    ax5.axhline(y=70, linestyle=':', color='blue')
+    ax5.axhline(y=30, linestyle=':', color='red')
+    ax5.legend()
+    plt.subplots_adjust(hspace=0.5)
     plt.show()
