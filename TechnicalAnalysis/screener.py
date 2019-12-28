@@ -7,7 +7,6 @@ __COMPLEX_SYMBOLS = []
 if os.path.exists('symbols.txt'):
 	with open('symbols.txt') as file:
 		__COMPLEX_SYMBOLS = eval(file.read())
-print(len(__COMPLEX_SYMBOLS))
 
 
 __SIMPLE_SYMBOLS = [
