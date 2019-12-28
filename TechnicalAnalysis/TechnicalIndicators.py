@@ -13,6 +13,7 @@ import io
 from mpl_finance import candlestick_ohlc
 import matplotlib.dates as mpl_dates
 import copy
+import tulipy
 class Indicators():
     """
     Signal library to provide graphical analysis of various market symbols
@@ -33,7 +34,6 @@ class Indicators():
         str representing stock symbol
     """
     def __init__(self, symbol):
-        # Matplotlib Setup
         register_matplotlib_converters()
         
         # TIINGO Setup
@@ -47,12 +47,13 @@ class Indicators():
             startDate=datetime.datetime.today() - relativedelta(years=5),
             endDate=datetime.datetime.today()
         )
+        
         self.data = pd.read_csv(io.StringIO(resp))
+        if 'date' not in self.data:
+            raise tulipy.InvalidOptionError
         f = lambda col: datetime.datetime.strptime(col, '%Y-%m-%d')
         self.data['date'] = self.data['date'].apply(f)
         self.data.index = self.data['date']
-        
-        # Calculate Averages and Returns
         self.data['avg'] = (self.data['close'] + self.data['low'] + self.data['high']) / 3
         self.data['returns'] = (self.data['open'] - self.data['close']) / self.data['open']
         self.lognorm = lambda x: scipy.stats.lognorm(x, loc=self.data['avg'].mean(), scale=self.data['avg'].std())
