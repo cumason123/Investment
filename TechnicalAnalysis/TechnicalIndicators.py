@@ -32,7 +32,7 @@ class Indicators():
     symbol : str
         str representing stock symbol
     """
-    def __init__(self, symbol):
+    def __init__(self, symbol, years=5):
         register_matplotlib_converters()
         
         # TIINGO Setup
@@ -43,7 +43,7 @@ class Indicators():
         resp = client.get_ticker_price(
             self.symbol, 
             fmt='csv', 
-            startDate=datetime.datetime.today() - relativedelta(years=5),
+            startDate=datetime.datetime.today() - relativedelta(years=years),
             endDate=datetime.datetime.today()
         )
         

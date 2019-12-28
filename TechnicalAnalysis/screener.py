@@ -3,7 +3,6 @@ import os
 import pantulipy as ti
 from multiprocessing.pool import ThreadPool
 
-
 pool = ThreadPool()
 __COMPLEX_SYMBOLS = []
 if os.path.exists('symbols.txt'):
@@ -23,12 +22,11 @@ def symbols2indicators(symbols_arr):
 
 	def f(symbol):
 		try:
-			return symbol, Indicators(symbol)
+			return symbol, Indicators(symbol, years=1)
 		except ti.InvalidOptionError as e:
-			print('Invalid Symbol {0}'.format(symbol))
 			return symbol, None	
-
-	return filter(lambda d: d[1] != None, dict(pool.map(f, list(set(symbols_arr)))))
+	symbols = pool.map(f, list(set(symbols_arr)))
+	return dict(filter(lambda d: d[1] != None, symbols))
 
 
 def find_stocks(ruleset, indicator_dict):
@@ -51,4 +49,4 @@ def find_stocks(ruleset, indicator_dict):
 		else:
 			return symbol, None
 	stocks = pool.map(f, list(set(indicator_dict.keys())))
-	return filter(lambda d: d[1] != None, stocks)
+	return dict(filter(lambda d: d[1] != None, stocks))
