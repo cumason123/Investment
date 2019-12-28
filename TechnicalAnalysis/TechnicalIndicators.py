@@ -78,15 +78,15 @@ def plot_indicator(indicator, start_timeframe):
     # MACD
     plt.subplot(511)
     plt.title("{0}: {1} vs {2} EMA's".format(indicator.symbol, 12, 26))
-    plt.plot(show.loc[long_stick.index]['close'])
-    plt.plot(short_stick.loc[long_stick.index], label='12 EMA')
-    plt.plot(long_stick, label='26 EMA')
+    plt.plot(show.loc[long_stick.index]['close'], color='green')
+    plt.plot(short_stick.loc[long_stick.index], label='12 EMA', color='blue')
+    plt.plot(long_stick, label='26 EMA', color='orange')
     plt.legend()
 
     plt.subplot(512)
     plt.title('MACD vs signal line')
-    plt.plot(macd, label="macd")
-    plt.plot(macd_signal, label="signal line")
+    plt.plot(macd, label="macd", color='blue')
+    plt.plot(macd_signal, label="signal line", color='orange')
     plt.legend()
 
     plt.subplot(513)
