@@ -13,7 +13,6 @@ import io
 from mpl_finance import candlestick_ohlc
 import matplotlib.dates as mpl_dates
 import copy
-import tulipy
 class Indicators():
     """
     Signal library to provide graphical analysis of various market symbols
@@ -50,7 +49,7 @@ class Indicators():
         
         self.data = pd.read_csv(io.StringIO(resp))
         if 'date' not in self.data:
-            raise tulipy.InvalidOptionError
+            raise ti.InvalidOptionError
         f = lambda col: datetime.datetime.strptime(col, '%Y-%m-%d')
         self.data['date'] = self.data['date'].apply(f)
         self.data.index = self.data['date']

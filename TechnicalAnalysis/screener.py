@@ -1,6 +1,6 @@
 from TechnicalIndicators import Indicators
 import os
-import tulipy as ti
+import pantulipy as ti
 
 
 __COMPLEX_SYMBOLS = []
