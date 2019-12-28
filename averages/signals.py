@@ -96,7 +96,7 @@ class Signals():
         plt.legend()
 
         # # RSI
-        oversold_index = pd.DataFrame({'oversold': [-70]*len(cci), 'index':cci.index}).set_index('index')
+        oversold_index = pd.DataFrame({'oversold': [30]*len(cci), 'index':cci.index}).set_index('index')
         overbought_index = pd.DataFrame({'overbought': [70]*len(cci), 'index':cci.index}).set_index('index')
         plt.subplot(515)
         plt.title('Relative Strength Index (RSI)')
