@@ -1,8 +1,10 @@
 from TechnicalIndicators import Indicators
 import os
 import pantulipy as ti
+from multiprocessing.pool import ThreadPool
 
 
+pool = ThreadPool()
 __COMPLEX_SYMBOLS = []
 if os.path.exists('symbols.txt'):
 	with open('symbols.txt') as file:
@@ -18,12 +20,15 @@ __SIMPLE_SYMBOLS = [
 
 def symbols2indicators(symbols_arr):
 	indicators = {}
-	for symbol in symbols_arr:
+
+	def f(symbol):
 		try:
-			indicators[symbol] = Indicators(symbol)
+			return symbol, Indicators(symbol)
 		except ti.InvalidOptionError as e:
 			print('Invalid Symbol {0}'.format(symbol))
-	return indicators
+			return symbol, None	
+
+	return filter(lambda d: d[1] != None, dict(pool.map(f, list(set(symbols_arr)))))
 
 
 def find_stocks(ruleset, indicator_dict):
@@ -40,7 +45,10 @@ def find_stocks(ruleset, indicator_dict):
 	returns : Dict{str : Indicators}"""
 	# TODO make oneline with filter
 	ret = {}
-	for symbol in indicator_dict:
-		if ruleset(indicator_dict[symbol]):
-			ret[symbol] = indicator_dict[symbol]
-	return ret
+	def f(symbol):
+		if indicator_dict[symbol] != None and ruleset(indicator_dict[symbol]):
+			return symbol, indicator_dict[symbol]
+		else:
+			return symbol, None
+	stocks = pool.map(f, list(set(indicator_dict.keys())))
+	return filter(lambda d: d[1] != None, stocks)
