@@ -32,9 +32,11 @@ class Indicators():
     symbol : str
         str representing stock symbol
     """
-    def __init__(self, symbol, years=5):
+    def __init__(self, symbol, years=5, nmacd=(12, 26, 9), ncci=20, nrsi=14):
         register_matplotlib_converters()
-        
+        self.nmacd = nmacd
+        self.ncci = ncci
+        self.nrsi = nrsi
         # TIINGO Setup
         config = {}
         config['api_key'] = os.getenv('TINGO_SECRET')
@@ -58,12 +60,12 @@ class Indicators():
         self.lognorm = lambda x: scipy.stats.lognorm(x, loc=self.data['avg'].mean(), scale=self.data['avg'].std())
         
         # Indicators
-        macd, macd_signal, macd_histogram = ti.macd(self.data, 12, 26, 9)
+        macd, macd_signal, macd_histogram = ti.macd(self.data, *nmacd)
         self.indicators = {
-            'cci': ti.cci(self.data, 20),
-            'rsi': ti.rsi(self.data, 14),
-            'shortema': ti.ema(self.data, 12),
-            'longema': ti.ema(self.data, 26),
+            'cci': ti.cci(self.data, ncci),
+            'rsi': ti.rsi(self.data, nrsi),
+            'shortema': ti.ema(self.data, nmacd[0]),
+            'longema': ti.ema(self.data, nmacd[1]),
             'macd': macd,
             'macd_signal': macd_signal,
             'macd_histogram': macd_histogram,
@@ -84,7 +86,7 @@ def plot_indicator(indicator, start_timeframe):
         for tick in ax.get_xticklabels():
             tick.set_rotation(45)
 
-    ax1.set_title("{0}: {1} vs {2} EMA's".format(indicator.symbol, 12, 26))
+    ax1.set_title("{0}: {1} vs {2} EMA's".format(indicator.symbol, *indicator.nmacd[:-1]))
     ohlc = show['show'].loc[show['longema'].index]
 
     ohlc['Date'] = pd.to_datetime(ohlc.index)
@@ -93,8 +95,8 @@ def plot_indicator(indicator, start_timeframe):
     ohlc = ohlc[['Date', 'open', 'high', 'low', 'close']]
     candlestick_ohlc(ax1, ohlc.values, colorup='green', colordown='red')
 
-    ax1.plot(show['shortema'].loc[show['longema'].index], label='12 EMA', color='blue')
-    ax1.plot(show['longema'], label='26 EMA', color='orange')
+    ax1.plot(show['shortema'].loc[show['longema'].index], label='{0} EMA'.format(indicator.nmacd[0]), color='blue')
+    ax1.plot(show['longema'], label='{0} EMA'.format(indicator.nmacd[1]), color='orange')
     ax1.legend()
 
     # Graph 2 -- MACD
@@ -120,14 +122,15 @@ def plot_indicator(indicator, start_timeframe):
     ax3.axhline(y=0, linestyle=':', color='black')
     
     # Graph 4 -- CCI
-    ax4.set_title('Commodity Channel Index (CCI)')
+    ax4.set_title('Commodity Channel Index ({0} day CCI)'.format(indicator.ncci))
     ax4.plot(show['cci'], label='cci')
     ax4.axhline(y=-100, linestyle=':', color='blue')
+    ax4.axhline(y=0, linestyle=':', color='black')
     ax4.axhline(y=100, linestyle=':', color='red')
     ax4.legend()
 
     # Graph 5 -- RSI
-    ax5.set_title('Relative Strength Index (RSI)')
+    ax5.set_title('Relative Strength Index ({0} day RSI)'.format(indicator.nrsi))
     ax5.plot(show['rsi'], label='rsi')
     ax5.axhline(y=70, linestyle=':', color='blue')
     ax5.axhline(y=30, linestyle=':', color='red')
