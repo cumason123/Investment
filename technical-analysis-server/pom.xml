@@ -9,14 +9,6 @@
   <url>http://maven.apache.org</url>
   <dependencies>
     <dependency>
-      <groupId>de.feike.tiingoclient1</groupId>
-      <artifactId>tiingoclient</artifactId>
-      <version>1.0.0</version>
-      <scope>system</scope>
-      <systemPath>${project.basedir}/tiingoclient-1.0.0.jar</systemPath>
-    </dependency>
-
-    <dependency>
       <groupId>org.springframework</groupId>
       <artifactId>spring-aop</artifactId>
       <version>5.2.2.RELEASE</version>
