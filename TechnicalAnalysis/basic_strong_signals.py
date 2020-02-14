@@ -24,13 +24,15 @@ class StrongTrendTrading(GenericAlgo):
 			return False
 		macd_bullish = data['macd_histogram'][-1] > 0
 		cci_bullish = data['cci'][-1] > 0
-
-		rsi_buy_signal = True in (data['rsi'][-1 - self.delta:-1] < 30).tolist()
-		return macd_bullish and cci_bullish and rsi_buy_signal
+		rsi_bullish = data['rsi'][-1] > 50
+		price_action_value = self.price_action(ind.data)
+		#rsi_buy_signal = True in (data['rsi'][-1 - self.delta:-1] < 30).tolist()
+		return macd_bullish and cci_bullish and rsi_bullish and price_action_value > 0
 
 	def short_ruleset(self, ind):
 		data = ind.indicators
 		macd_bearish = data['macd_histogram'][-1] < 0
 		cci_bearish = data['cci'][-1] < 0
-		rsi_short_signal = True in (data['rsi'][-1 - self.delta:-1] > 70).tolist()
-		return macd_bearish and cci_bearish and rsi_short_signal
+		rsi_bearish = data['rsi'][-1] < 50
+		#rsi_short_signal = True in (data['rsi'][-1 - self.delta:-1] > 70).tolist()
+		return macd_bearish and cci_bearish and rsi_bearish

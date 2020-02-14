@@ -3,7 +3,9 @@ scipy
 matplotlib
 jupyter
 pandas
+tulipy
 datetime
 tiingo
 git+https://github.com/cumason123/pantulipy
 mpl_finance
+TA-Lib
