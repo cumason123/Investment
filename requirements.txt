@@ -9,3 +9,4 @@ tiingo
 git+https://github.com/cumason123/pantulipy
 mpl_finance
 TA-Lib
+alpaca-trade-api
