@@ -8,7 +8,9 @@ COMPLEX_SYMBOLS = []
 if os.path.exists('symbols.txt'):
 	with open('symbols.txt') as file:
 		COMPLEX_SYMBOLS = eval(file.read())
-
+elif os.path.exists('TechnicalAnalysis/symbols.txt'):
+	with open('TechnicalAnalysis/symbols.txt') as file:
+		COMPLEX_SYMBOLS = eval(file.read())
 
 __SIMPLE_SYMBOLS = [
 	'PYPL', 'AAPL', 'BB', 'T', 'TSLA', 
