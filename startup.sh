@@ -1,2 +1,2 @@
 #/bin/bash!
-sudo -E python3 TechnicalAnalysis
+sudo -E python3 TechnicalAnalysis &
