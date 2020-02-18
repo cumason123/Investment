@@ -18,6 +18,7 @@ def GetBullishStocks():
 def swapstock():
 	while True:
 		now = time.time()
+		print('Regenerating stock data')
 		symbols = symbols2indicators(COMPLEX_SYMBOLS, nmacd=(15, 30, 9), ncci=31, years=1)
 		trading_strategy = StrongTrendTrading(delta=12)
 		bull_stocks = find_stocks(trading_strategy.buy_ruleset, symbols, use_penny_stocks=False)
