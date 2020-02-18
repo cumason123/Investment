@@ -1,11 +1,37 @@
 import React from 'react';
-import { StyleSheet, Text, View } from 'react-native';
+import { StyleSheet, Text, View, TouchableOpacity } from 'react-native';
+import { Provider, connect } from 'react-redux'
+import { createStore } from 'redux'
+import SButton from './components/StockButton'
+import RStocks from './components/RenderStocks'
 
-export default function App() {
+const initialState = {
+  stocks: []
+}
+
+const reducer = (state = initialState, action) => {
+  switch(action.type){
+    case 'GET_STOCKS':
+      return {stocks: fetch('https://ec2-107-23-71-107.compute-1.amazonaws.com/bullstocks')
+        .then((resp) => resp.json())
+        .then((respJson) => {
+          return { stocks: respJson }
+        })
+        .catch((err) => {
+          console.log("GET_STOCKS ERROR", err.message)
+          return initialState;
+        })}
+  }
+  return state
+}
+
+const store = createStore(reducer)
+
+function App() {
   return (
-    <View style={styles.container}>
-      <Text>Open up App.tsx to start working on your app!</Text>
-    </View>
+    <Provider store={store}>
+      <SButton/>
+    </Provider>
   );
 }
 
@@ -17,3 +43,5 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
   },
 });
+
+export default App
