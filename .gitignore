@@ -590,4 +590,9 @@ bh_unicode_properties.cache
 GitHub.sublime-settings
 
 # End of https://www.gitignore.io/api/java,maven,sublimetext
+<<<<<<< HEAD
 documentation.txt
+=======
+
+.creds.json
+>>>>>>> 9158bed65f5912e99e1e2fcb91244b19d1b9ac6f
