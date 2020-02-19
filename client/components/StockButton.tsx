@@ -40,6 +40,7 @@ function mapStateToProps(state) {
 }
 
 function mapDispatchToProps(dispatch) {
+  console.log('mapDispatchToProps')
     return {
         getstocks: () => dispatch({ 
           type: 'GET_STOCKS', 
