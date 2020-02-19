@@ -12,15 +12,7 @@ const initialState = {
 const reducer = (state = initialState, action) => {
   switch(action.type){
     case 'GET_STOCKS':
-      return {stocks: fetch('https://ec2-107-23-71-107.compute-1.amazonaws.com/bullstocks')
-        .then((resp) => resp.json())
-        .then((respJson) => {
-          return { stocks: respJson }
-        })
-        .catch((err) => {
-          console.log("GET_STOCKS ERROR", err.message)
-          return initialState;
-        })}
+      return {stocks: action.stocks}
   }
   return state
 }

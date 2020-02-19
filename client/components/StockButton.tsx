@@ -1,7 +1,7 @@
 import React from 'react';
 import { StyleSheet, Text, View, Button, TouchableOpacity } from 'react-native';
 import { connect } from 'react-redux'
-
+import axios from 'axios'
 class SButton extends React.Component {
 
   render(){
@@ -15,7 +15,6 @@ class SButton extends React.Component {
             <Text>{JSON.stringify(this.props.stocks)}</Text>
           </View>
         </View>
-        
       );
   }
 }
@@ -30,10 +29,11 @@ const styles = StyleSheet.create({
 });
 
 function mapStateToProps(state) {
-    console.log('StockButton.mapStateToProps: ', state)
     if (state == undefined) {
+      console.log("Undefined mapStateToProps")
       return { stocks:[] }
     }
+    console.log("Mapping: ", state)
     return {
         stocks: state.stocks
     }
@@ -41,7 +41,12 @@ function mapStateToProps(state) {
 
 function mapDispatchToProps(dispatch) {
     return {
-        getstocks: () => dispatch({ type: 'GET_STOCKS' }),
+        getstocks: () => dispatch({ 
+          type: 'GET_STOCKS', 
+          stocks: axios.get('http://ec2-107-23-71-107.compute-1.amazonaws.com/bullstocks')
+            .then((response) => response.data)
+            .catch((err) => console.log(err.message)) 
+        }),
     }
 }
 
