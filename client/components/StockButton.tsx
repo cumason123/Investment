@@ -2,11 +2,13 @@ import React from 'react';
 import { StyleSheet, Text, View, Button } from 'react-native';
 import {connect} from "react-redux";
 import { bindActionCreators } from 'redux';
+import RStocks from './RenderStocks';
 
 export default class SButton extends React.Component {
 
   state = {
-    stocks: ['APPLE','BANNANA']
+    stocks: ['APPLE','BANNANA'],
+    render: <Text>N/A</Text>
   }
   constructor(props) {
     super(props)
@@ -16,7 +18,9 @@ export default class SButton extends React.Component {
     let data = fetch('http://ec2-107-23-71-107.compute-1.amazonaws.com/bullstocks')
       .then(response => response.json())
       .then(json => {
-        this.setState({stocks: json.toString()})
+        json = json.map((item) => ({'stock': item}))
+        json = {stocks: json}
+        this.setState({ stocks: json, render: <RStocks {...json}/>})
       })
       .catch(err => err.message)
   }
@@ -26,7 +30,7 @@ export default class SButton extends React.Component {
     return(
       <View style={styles.container}>
         <Button onPress={this.genStocks} title='Click Me'/>
-        <Text>{this.state.stocks}</Text>
+        {this.state.render}
       </View>
     );
   }
