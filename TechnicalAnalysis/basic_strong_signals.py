@@ -36,3 +36,13 @@ class StrongTrendTrading(GenericAlgo):
 		rsi_bearish = data['rsi'][-1] < 50
 		#rsi_short_signal = True in (data['rsi'][-1 - self.delta:-1] > 70).tolist()
 		return macd_bearish and cci_bearish and rsi_bearish
+
+class SmallStocksTrendTrading(StrongTrendTrading):
+	def __init__(self, delta=2):
+		super().__init__(delta=delta)
+
+	def buy_ruleset(self, ind, use_penny_stocks, threshold):
+		can_afford_stock = ind.data['close'][-1] < threshold
+		volume_increasing = ((ind.data['volume'][-1] - \
+			ind.data['volume'][-1 - self.delta]) / max(1, self.delta)) > 0
+		return super().buy_ruleset(ind, use_penny_stocks) and can_afford_stock and volume_increasing

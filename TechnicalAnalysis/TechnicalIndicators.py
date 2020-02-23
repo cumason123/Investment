@@ -40,7 +40,6 @@ class Indicators():
         # TIINGO Setup
         config = {}
         config['api_key'] = os.getenv('TINGO_SECRET')
-        print('Config ', config['api_key'], 'should have ', os.getenv('TINGO_SECRET'))
         client = TiingoClient(config)
         self.symbol = symbol
         resp = client.get_ticker_price(
